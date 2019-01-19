@@ -35,7 +35,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-        getLocation(); //function to get lat and long
 
         mVoiceRecorded = findViewById(R.id.voiceRecorded);
         ImageButton mSpeakBtn = findViewById(R.id.btnRecord);
@@ -43,7 +42,8 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
-                startVoiceRecord();
+                startVoiceRecord();//start recording
+                getLocation(); //function to get lat and long
             }
         });
 
@@ -52,30 +52,13 @@ public class MainActivity extends AppCompatActivity {
 
     }
     void getLocation(){
+        // check if we have permission
         if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)!= PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,Manifest.permission.ACCESS_COARSE_LOCATION)!=PackageManager.PERMISSION_GRANTED){
             ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION},r_location);
         }
         else{
+            //ask for permission
             Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER); //location data that can be used to calculate distance
-
-            if (location != null){
-                double lat = location.getLatitude();
-                double longt = location.getLongitude();
-
-                
-                TextView latText =  findViewById(R.id.lat);
-                TextView longtText =  findViewById(R.id.longt);
-                latText.setText("Latitude:"+lat);
-                longtText.setText("Longitude:"+longt);
-            }
-
-            else{
-                String nulllocation = "Unable to locate ";
-                TextView latText =  findViewById(R.id.lat);
-                TextView longtText =  findViewById(R.id.longt);
-                latText.setText(nulllocation + "Latitude");
-                longtText.setText(nulllocation+"Longitude:");
-            }
         }
 
 
