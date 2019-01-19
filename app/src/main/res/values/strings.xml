@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">null_name</string>
+    <string name="instruction">press to start recording</string>
 </resources>
