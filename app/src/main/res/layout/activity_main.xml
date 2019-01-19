@@ -19,6 +19,17 @@
             android:layout_height="match_parent" />
     </ScrollView>
 
+    <TextView
+        android:id="@+id/lat"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <TextView
+        android:id="@+id/longt"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+
     <LinearLayout
         android:id="@+id/btnSpeakContainer"
         android:layout_width="match_parent"
