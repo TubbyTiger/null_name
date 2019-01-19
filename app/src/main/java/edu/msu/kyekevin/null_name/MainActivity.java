@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -12,14 +13,20 @@ import android.app.Service;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+
+import com.smartnsoft.directlinechatbot.DirectLineChatbot;
+
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.Locale;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity { 
 
     private static final int Record_Limit = 100;
     private TextView mVoiceRecorded; // what system recorded
+    final DirectLineChatbot chatbot = new DirectLineChatbot("FuzJTZSqblE.cwA.D-E.aUCCKhA6bIREW1JtzhsG2AgYQvdsckg0hgJlFp4UkXU");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +40,23 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startVoiceRecord();
+            }
+        });
+
+        chatbot.start(new DirectLineChatbot.Callback()
+        {
+            @Override
+            public void onStarted()
+            {
+                Log.d("CHATBOT", "Started");
+
+
+            }
+
+            @Override
+            public void onMessageReceived(@NotNull String message)
+            {
+                Log.d("CHATBOT", message);
             }
         });
     }
@@ -59,6 +83,8 @@ public class MainActivity extends AppCompatActivity {
                     ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
                     String TextRecorded = result.get(0); // command user input
                     mVoiceRecorded.setText(TextRecorded);
+                    chatbot.send(TextRecorded);
+
                 }
                 break;
             }
