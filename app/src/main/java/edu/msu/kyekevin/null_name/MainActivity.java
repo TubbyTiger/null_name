@@ -1,10 +1,16 @@
 package edu.msu.kyekevin.null_name;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.util.Locale;
 import android.Manifest;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -33,8 +39,14 @@ import android.speech.tts.TextToSpeech;
 import com.smartnsoft.directlinechatbot.DirectLineChatbot;
 
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import co.intentservice.chatui.ChatView;
 import co.intentservice.chatui.models.ChatMessage;
+
+
 
 public class MainActivity extends AppCompatActivity {
     static final int r_location =1;
@@ -43,7 +55,8 @@ public class MainActivity extends AppCompatActivity {
     private static final int Record_Limit = 100;
     private ChatView mChatView;
     private Clinic[] nearByClinics = new Clinic[3];
-
+    private String[] chosenStrings = new String[3];
+    private String chosenString = "";
     TextToSpeech t1;
     final DirectLineChatbot chatbot = new DirectLineChatbot("TbclawlN7Lk.cwA.Zvo.7LygN-lSxpQeiLhZNldc2nt8_TJ5Eq4g2k5t7ykh_Gg");
     private boolean waitingForChoice = false;
@@ -144,6 +157,10 @@ public class MainActivity extends AppCompatActivity {
 
         return isValidInteger;
     }
+
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -152,8 +169,38 @@ public class MainActivity extends AppCompatActivity {
         locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
         mChatView =  findViewById(R.id.chat_view);
 
+        SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", MODE_PRIVATE);
+        String ob = pref.getString("chosen",null);
+        if (ob!=null){
+            String line = null;
+            BufferedReader bufReader = new BufferedReader(new StringReader(ob));
+            try {
+                int cnt = 0;
+                while ((line = bufReader.readLine()) != null) {
+                    String[] values = line.split("\\|");
+                    chosenClinic =new Clinic(values[0],values[1],values[2],values[3],values[4],values[5],values[6],values[7],values[8],values[9],values[10],values[11]);
+                    cnt++;
+
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
+        }
+
+
         ImageButton mSpeakBtn = findViewById(R.id.btnRecord);
         mSpeakBtn.setOnClickListener(new View.OnClickListener() {
+
+
+
+
+
+
+
+
+
 
             @Override
             public void onClick(View v) {
@@ -171,16 +218,24 @@ public class MainActivity extends AppCompatActivity {
                     if( isInteger(chatMessage.getMessage()) ){
                         if(Integer.parseInt(chatMessage.getMessage())>=1 && (Integer.parseInt(chatMessage.getMessage())<=3)){
                             waitingForChoice = false;
-                            chosenClinic = nearByClinics[Integer.parseInt(chatMessage.getMessage())];
+                            SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", MODE_PRIVATE);
+                            SharedPreferences.Editor editor = pref.edit();
+
+
+
+                            chosenClinic = nearByClinics[Integer.parseInt(chatMessage.getMessage())-1];
+                            String msg = chosenStrings[Integer.parseInt(chatMessage.getMessage())-1];
+                            editor.putString("chosen",msg);
+                            editor.commit();
 
 
 
                         }
-                    }
+                        }
 
                 }
                 else{
-                    chatbot.send(chatMessage.getMessage());
+                 //   chatbot.send(chatMessage.getMessage());
                 }
                 return true;
             }
@@ -235,6 +290,10 @@ public class MainActivity extends AppCompatActivity {
                         String a = msg;
                         thisglobalvabb = msg;
                         if(msg.equals("You do not have a pre-set clinic, we will suggest clinics near you based on your GPS location.")){
+                            if(chosenClinic != null){
+                                thisglobalvabb = "Here is the information of your pre-set clinic: ";
+                            }
+                            else
                             getLocation();
                         }
                         else if(msg.indexOf('|')>=0){
@@ -247,6 +306,7 @@ public class MainActivity extends AppCompatActivity {
                                 int choice = 0;
                                 while ((line = bufReader.readLine()) != null) {
                                     String[] values = line.split("\\|");
+                                    chosenStrings[cnt] = line;
                                     nearByClinics[cnt] =new Clinic(values[0],values[1],values[2],values[3],values[4],values[5],values[6],values[7],values[8],values[9],values[10],values[11]);
                                     cnt++;
                                     choice ++;
@@ -301,6 +361,10 @@ public class MainActivity extends AppCompatActivity {
             }
 
         });
+
+
+
+
 
 
     }
