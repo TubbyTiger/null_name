@@ -27,13 +27,14 @@ tools:context="edu.msu.kyekevin.null_name.MainActivity">
         android:id="@+id/btnRecord"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
         android:layout_gravity="start"
-        android:layout_marginBottom="12dp"
+        android:layout_marginStart="7dp"
+        android:layout_marginBottom="13dp"
         android:background="@null"
         android:scaleType="fitCenter"
-        android:src="@drawable/mic" />
+        android:src="@drawable/icon" />
 
 
 </RelativeLayout>
