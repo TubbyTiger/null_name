@@ -1,5 +1,6 @@
 package edu.msu.kyekevin.null_name;
-
+import java.util.Arrays;
+import java.util.Locale;
 import android.Manifest;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -27,7 +28,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Locale;
 import android.support.annotation.NonNull;
-
+import android.speech.tts.TextToSpeech;
 import com.smartnsoft.directlinechatbot.DirectLineChatbot;
 
 import org.jetbrains.annotations.NotNull;
@@ -41,6 +42,8 @@ public class MainActivity extends AppCompatActivity {
     private static final int Record_Limit = 100;
     private ChatView mChatView;
     private Clinic[] nearByClinics = new Clinic[3];
+
+    TextToSpeech t1;
     final DirectLineChatbot chatbot = new DirectLineChatbot("TbclawlN7Lk.cwA.Zvo.7LygN-lSxpQeiLhZNldc2nt8_TJ5Eq4g2k5t7ykh_Gg");
     private boolean waitingForChoice = false;
 
@@ -155,6 +158,10 @@ public class MainActivity extends AppCompatActivity {
                 startVoiceRecord();//start recording
             }
         });
+
+
+
+
         mChatView.setOnSentMessageListener(new ChatView.OnSentMessageListener() {
             @Override
             public boolean sendMessage(ChatMessage chatMessage) {
@@ -176,28 +183,42 @@ public class MainActivity extends AppCompatActivity {
         mChatView.setTypingListener(new ChatView.TypingListener() {
             @Override
             public void userStartedTyping() {
-
+                mSpeakBtn.setVisibility(View.GONE);
             }
 
             @Override
             public void userStoppedTyping() {
+                mSpeakBtn.setVisibility(View.VISIBLE);
+            }
+        });
+
+        t1=new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if(status != TextToSpeech.ERROR) {
+                    t1.setLanguage(Locale.UK);
+                }
 
             }
         });
+
+
+
         chatbot.start(new DirectLineChatbot.Callback()
         {
             @Override
             public void onStarted()
             {
                 Log.d("CHATBOT", "Started");
+
             }
+
             @Override
             public void onMessageReceived(@NotNull String message)
             {
                 Log.d("CHATBOT", message);
                 //mChatView.addMessage(new ChatMessage(message, System.currentTimeMillis(), ChatMessage.Type.RECEIVED));
                 final String msg = message;
-
 
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
@@ -232,6 +253,11 @@ public class MainActivity extends AppCompatActivity {
                         if(!msg.isEmpty()) {
                             ChatMessage chatMessage = new ChatMessage(a, System.currentTimeMillis(), ChatMessage.Type.RECEIVED);
                             mChatView.addMessage(chatMessage);
+                            t1.speak(a,TextToSpeech.QUEUE_FLUSH,null,null);
+                            boolean speakingEnd = t1.isSpeaking();
+                            do{
+                                speakingEnd = t1.isSpeaking();
+                            } while (speakingEnd);
                         }
                     }
                 });
@@ -244,7 +270,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
+    public void onDestroy(){
+        if(t1 !=null){
+            t1.stop();
+            t1.shutdown();
+        }
+        super.onDestroy();
+    }
 
 
     void getLocation(){
@@ -255,12 +287,10 @@ public class MainActivity extends AppCompatActivity {
         else{
             //ask for permission
             Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER); //location data that can be used to calculate distance
-            chatbot.send(Double.toString(location.getLongitude()) + "|"+location.getLatitude());
         }
 
 
     }
-    /*
     @Override
     public void onRequestPermissionsResult(int requestCode,@NonNull String[] permission,@NonNull int[]grantResults){
         super.onRequestPermissionsResult(requestCode,permission,grantResults);
@@ -270,8 +300,8 @@ public class MainActivity extends AppCompatActivity {
                 break;
 
         }
-    }*/
 
+    }
     private void startVoiceRecord() {
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
