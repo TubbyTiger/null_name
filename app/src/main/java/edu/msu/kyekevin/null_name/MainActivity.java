@@ -53,7 +53,21 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        chatbot.start(new DirectLineChatbot.Callback()
+        {
+            @Override
+            public void onStarted()
+            {
+                Log.d("CHATBOT", "Started");
 
+            }
+
+            @Override
+            public void onMessageReceived(@NotNull String message)
+            {
+                Log.d("CHATBOT", message);
+            }
+        });
 
 
     }
@@ -78,23 +92,7 @@ public class MainActivity extends AppCompatActivity {
                 break;
 
         }
-        chatbot.start(new DirectLineChatbot.Callback()
-        {
-            @Override
-            public void onStarted()
-            {
-                Log.d("CHATBOT", "Started");
 
-
-
-            }
-
-            @Override
-            public void onMessageReceived(@NotNull String message)
-            {
-                Log.d("CHATBOT", message);
-            }
-        });
     }
     private void startVoiceRecord() {
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
