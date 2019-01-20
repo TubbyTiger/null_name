@@ -320,7 +320,21 @@ public class MainActivity extends AppCompatActivity {
                     public void run() {
                         String a = msg;
                         thisglobalvabb = msg;
-                        if(msg.equals("You do not have a pre-set clinic, we will suggest clinics near you based on your GPS location.")){
+                        if(msg.equals("deleteclinic")){
+                            SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", MODE_PRIVATE);
+                            String ob = pref.getString("chosen",null);
+                            if(ob == null){
+                                thisglobalvabb = "There was no saved clinic to be removed. Say \"find me a clinic\" to find a clinic";
+
+                            }else{
+                                pref.edit().remove("chosen").apply();
+                                thisglobalvabb = "Your saved clinic has been removed.Say \"find me a clinic\" to find a clinic";
+                            }
+
+                            a = thisglobalvabb;
+
+                        }
+                        else if(msg.equals("You do not have a pre-set clinic, we will suggest clinics near you based on your GPS location.")){
                             if(chosenClinic != null){
                                 if(currentLoc == null){
                                     getLocation();
