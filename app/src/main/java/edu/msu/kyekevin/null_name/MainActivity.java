@@ -2,10 +2,13 @@ package edu.msu.kyekevin.null_name;
 import java.util.Arrays;
 import java.util.Locale;
 import android.Manifest;
+import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -43,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int Record_Limit = 100;
     private ChatView mChatView;
     private Clinic[] nearByClinics = new Clinic[3];
-
+    private Location currentLoc = null;
     TextToSpeech t1;
     final DirectLineChatbot chatbot = new DirectLineChatbot("TbclawlN7Lk.cwA.Zvo.7LygN-lSxpQeiLhZNldc2nt8_TJ5Eq4g2k5t7ykh_Gg");
     private boolean waitingForChoice = false;
@@ -81,7 +84,13 @@ public class MainActivity extends AppCompatActivity {
             return provider_name;
         }
 
+        public String getLon() {
+            return lon;
+        }
 
+        public String getLat() {
+            return lat;
+        }
 
         public String getNetwork_identifier() {
             return network_identifier;
@@ -168,14 +177,38 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean sendMessage(ChatMessage chatMessage) {
                 if(waitingForChoice ){
-                    if( isInteger(chatMessage.getMessage()) ){
-                        if(Integer.parseInt(chatMessage.getMessage())>=1 && (Integer.parseInt(chatMessage.getMessage())<=3)){
-                            waitingForChoice = false;
-                            chosenClinic = nearByClinics[Integer.parseInt(chatMessage.getMessage())];
+                            if( isInteger(chatMessage.getMessage()) ){
+                                if(Integer.parseInt(chatMessage.getMessage())>=1 && (Integer.parseInt(chatMessage.getMessage())<=3)){
+                                    waitingForChoice = false;
+                                    chosenClinic = nearByClinics[Integer.parseInt(chatMessage.getMessage())];
+                                    double currentla = currentLoc.getLatitude();
+                                    double currentlon = currentLoc.getLongitude();
+                                    double destla = Double.valueOf(chosenClinic.getLat());
+                                    double destlon = Double.valueOf(chosenClinic.getLon());
+                                    String ChosenName = chosenClinic.getProvider_name();
+                                    String chosenAdd= chosenClinic.getAddress();
+                                    String chosenNum = chosenClinic.getPhoneNumber();
+                                    new AlertDialog.Builder(mChatView.getContext())
+                                            .setMessage("You chose "+ChosenName+"." + "Located at:" +chosenAdd+",")
+                                            .setPositiveButton("Direction", new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int which) {
+                                                    final Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://maps.google.com/maps?" + "saddr=" + currentla + "," +currentlon  + "&daddr=" + destla + "," + destlon));
+                                                    intent.setClassName("com.google.android.apps.maps", "com.google.android.maps.MapsActivity");
+                                                    startActivity(intent);
+                                                }
+                                            })
+                                            .setNegativeButton("Call", new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int which) {
+                                                    String phone = chosenNum;
+                                                    Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", phone, null));
+                                                    startActivity(intent);
+                                                }
+                                            })
+                                            .show();
 
-
-
-                        }
+                                }
                     }
 
                 }
@@ -324,7 +357,7 @@ public class MainActivity extends AppCompatActivity {
             //ask for permission
             Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER); //location data that can be used to calculate distance
             chatbot.send(location.getLongitude() + "|" + location.getLatitude());
-
+            currentLoc = location;
         }
 
 
@@ -362,6 +395,42 @@ public class MainActivity extends AppCompatActivity {
                     ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
                     String TextRecorded = result.get(0); // command user input
                     chatbot.send(TextRecorded);
+                    if(waitingForChoice ){
+                        if( isInteger(TextRecorded) ){
+                            if(Integer.parseInt(TextRecorded)>=1 && (Integer.parseInt(TextRecorded)<=3)){
+                                waitingForChoice = false;
+                                chosenClinic = nearByClinics[Integer.parseInt(TextRecorded)];
+                                double currentla = currentLoc.getLatitude();
+                                double currentlon = currentLoc.getLongitude();
+                                double destla = Double.valueOf(chosenClinic.getLat());
+                                double destlon = Double.valueOf(chosenClinic.getLon());
+                                String ChosenName = chosenClinic.getProvider_name();
+                                String chosenAdd= chosenClinic.getAddress();
+                                String chosenNum = chosenClinic.getPhoneNumber();
+                                new AlertDialog.Builder(mChatView.getContext())
+                                        .setMessage("You chose "+ChosenName+"." + "Located at:" +chosenAdd+",")
+                                        .setPositiveButton("Direction", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                final Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://maps.google.com/maps?" + "saddr=" + currentla + "," +currentlon  + "&daddr=" + destla + "," + destlon));
+                                                intent.setClassName("com.google.android.apps.maps", "com.google.android.maps.MapsActivity");
+                                                startActivity(intent);
+                                            }
+                                        })
+                                        .setNegativeButton("Call", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                String phone = chosenNum;
+                                                Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", phone, null));
+                                                startActivity(intent);
+                                            }
+                                        })
+                                        .show();
+
+                            }
+                        }
+
+                    }
                     mChatView.addMessage(new ChatMessage(TextRecorded, System.currentTimeMillis(), ChatMessage.Type.SENT));
 
 
