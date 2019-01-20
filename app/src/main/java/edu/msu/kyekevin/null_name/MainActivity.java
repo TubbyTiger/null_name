@@ -6,10 +6,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.speech.RecognizerIntent;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.app.Service;
@@ -25,14 +28,16 @@ import android.support.annotation.NonNull;
 import com.smartnsoft.directlinechatbot.DirectLineChatbot;
 
 import org.jetbrains.annotations.NotNull;
-
+import co.intentservice.chatui.ChatView;
+import co.intentservice.chatui.models.ChatMessage;
 
 public class MainActivity extends AppCompatActivity {
     static final int r_location =1;
     LocationManager locationManager;
 
     private static final int Record_Limit = 100;
-    private TextView mVoiceRecorded; // what system recorded
+    private ChatView mChatView;
+
     final DirectLineChatbot chatbot = new DirectLineChatbot("TbclawlN7Lk.cwA.Zvo.7LygN-lSxpQeiLhZNldc2nt8_TJ5Eq4g2k5t7ykh_Gg");
 
     @Override
@@ -41,8 +46,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+        mChatView =  findViewById(R.id.chat_view);
 
-        mVoiceRecorded = findViewById(R.id.voiceRecorded);
         ImageButton mSpeakBtn = findViewById(R.id.btnRecord);
         mSpeakBtn.setOnClickListener(new View.OnClickListener() {
 
@@ -52,7 +57,24 @@ public class MainActivity extends AppCompatActivity {
                 getLocation(); //function to get lat and long
             }
         });
+        mChatView.setOnSentMessageListener(new ChatView.OnSentMessageListener() {
+            @Override
+            public boolean sendMessage(ChatMessage chatMessage) {
+                chatbot.send(chatMessage.getMessage());
+                return true;
+            }
+        });
+        mChatView.setTypingListener(new ChatView.TypingListener() {
+            @Override
+            public void userStartedTyping() {
 
+            }
+
+            @Override
+            public void userStoppedTyping() {
+
+            }
+        });
         chatbot.start(new DirectLineChatbot.Callback()
         {
             @Override
@@ -66,11 +88,28 @@ public class MainActivity extends AppCompatActivity {
             public void onMessageReceived(@NotNull String message)
             {
                 Log.d("CHATBOT", message);
+                //mChatView.addMessage(new ChatMessage(message, System.currentTimeMillis(), ChatMessage.Type.RECEIVED));
+                final String msg = message;
+
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        ChatMessage chatMessage = new ChatMessage(msg, System.currentTimeMillis(), ChatMessage.Type.RECEIVED);
+                        mChatView.addMessage(chatMessage);
+                    }
+                });
+
             }
+
         });
 
 
     }
+
+
+
+
+
     void getLocation(){
         // check if we have permission
         if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)!= PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,Manifest.permission.ACCESS_COARSE_LOCATION)!=PackageManager.PERMISSION_GRANTED){
@@ -115,8 +154,9 @@ public class MainActivity extends AppCompatActivity {
                 if (resultCode == RESULT_OK && data != null) {
                     ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
                     String TextRecorded = result.get(0); // command user input
-                    mVoiceRecorded.setText(TextRecorded);
                     chatbot.send(TextRecorded);
+                    mChatView.addMessage(new ChatMessage(TextRecorded, System.currentTimeMillis(), ChatMessage.Type.SENT));
+
 
                 }
                 break;

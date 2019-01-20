@@ -1,50 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/activity_main"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="edu.msu.kyekevin.null_name.MainActivity">
+xmlns:chatview="http://schemas.android.com/apk/res-auto"
+xmlns:tools="http://schemas.android.com/tools"
 
-    <ScrollView
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_above="@+id/btnSpeakContainer"
-        android:layout_alignParentTop="true"
-        android:layout_marginBottom="20dp"
-        android:padding="20dp">
+style="@style/Widget.AppCompat.ButtonBar"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:gravity="center_horizontal"
+android:orientation="vertical"
+tools:context="edu.msu.kyekevin.null_name.MainActivity">
 
-        <TextView
-            android:id="@+id/voiceRecorded"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-
-    </ScrollView>
-
-    <LinearLayout
-        android:id="@+id/btnSpeakContainer"
+    <co.intentservice.chatui.ChatView
+        android:id="@+id/chat_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:gravity="center_horizontal"
-        android:orientation="vertical"
-        >
-
-        <ImageButton
-            android:id="@+id/btnRecord"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@null"
-            android:padding="16dp"
-            android:scaleType="fitCenter"
-            android:src="@drawable/mic" />
+        android:layout_height="match_parent"
+        chatview:backgroundColor="@color/off_white"
+        chatview:bubbleBackgroundRcv="@color/blue"
+        chatview:bubbleBackgroundSend="@color/white"
+        chatview:bubbleElevation="elevated"
+        chatview:inputHint="@string/start_typing" />
 
 
-        <TextView
-            android:id="@+id/textView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/btnRecord"
-            android:layout_margin="10dp"
-            android:text="@string/instruction" />
-    </LinearLayout>
+    <ImageButton
+        android:id="@+id/btnRecord"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_gravity="start"
+        android:background="@null"
+        android:scaleType="fitCenter"
+        android:src="@drawable/mic" />
+
+
 </RelativeLayout>
+
