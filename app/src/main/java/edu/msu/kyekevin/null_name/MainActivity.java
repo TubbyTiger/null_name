@@ -1,10 +1,12 @@
 package edu.msu.kyekevin.null_name;
-
+import java.util.Arrays;
+import java.util.Locale;
 import android.Manifest;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -24,7 +26,7 @@ import android.support.v7.app.AppCompatActivity;
 import java.util.ArrayList;
 import java.util.Locale;
 import android.support.annotation.NonNull;
-
+import android.speech.tts.TextToSpeech;
 import com.smartnsoft.directlinechatbot.DirectLineChatbot;
 
 import org.jetbrains.annotations.NotNull;
@@ -38,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int Record_Limit = 100;
     private ChatView mChatView;
 
+    TextToSpeech t1;
     final DirectLineChatbot chatbot = new DirectLineChatbot("TbclawlN7Lk.cwA.Zvo.7LygN-lSxpQeiLhZNldc2nt8_TJ5Eq4g2k5t7ykh_Gg");
 
     @Override
@@ -57,24 +60,42 @@ public class MainActivity extends AppCompatActivity {
                 getLocation(); //function to get lat and long
             }
         });
+
+
+
+
         mChatView.setOnSentMessageListener(new ChatView.OnSentMessageListener() {
             @Override
             public boolean sendMessage(ChatMessage chatMessage) {
                 chatbot.send(chatMessage.getMessage());
+
                 return true;
             }
         });
         mChatView.setTypingListener(new ChatView.TypingListener() {
             @Override
             public void userStartedTyping() {
-
+                mSpeakBtn.setVisibility(View.GONE);
             }
 
             @Override
             public void userStoppedTyping() {
+                mSpeakBtn.setVisibility(View.VISIBLE);
+            }
+        });
+
+        t1=new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if(status != TextToSpeech.ERROR) {
+                    t1.setLanguage(Locale.UK);
+                }
 
             }
         });
+
+
+
         chatbot.start(new DirectLineChatbot.Callback()
         {
             @Override
@@ -96,6 +117,12 @@ public class MainActivity extends AppCompatActivity {
                     public void run() {
                         ChatMessage chatMessage = new ChatMessage(msg, System.currentTimeMillis(), ChatMessage.Type.RECEIVED);
                         mChatView.addMessage(chatMessage);
+                        t1.speak(msg,TextToSpeech.QUEUE_FLUSH,null,null);
+                        boolean speakingEnd = t1.isSpeaking();
+                        do{
+                            speakingEnd = t1.isSpeaking();
+                        } while (speakingEnd);
+
                     }
                 });
 
@@ -107,7 +134,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
+    public void onDestroy(){
+        if(t1 !=null){
+            t1.stop();
+            t1.shutdown();
+        }
+        super.onDestroy();
+    }
 
 
     void getLocation(){
@@ -155,6 +188,7 @@ public class MainActivity extends AppCompatActivity {
                     ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
                     String TextRecorded = result.get(0); // command user input
                     chatbot.send(TextRecorded);
+
                     mChatView.addMessage(new ChatMessage(TextRecorded, System.currentTimeMillis(), ChatMessage.Type.SENT));
 
 
@@ -164,7 +198,6 @@ public class MainActivity extends AppCompatActivity {
 
         }
     }
-
 
 
 }
