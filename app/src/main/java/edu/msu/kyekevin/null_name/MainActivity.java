@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 
-public class MainActivity extends AppCompatActivity { 
+public class MainActivity extends AppCompatActivity {
 
     private static final int Record_Limit = 100;
     private TextView mVoiceRecorded; // what system recorded
