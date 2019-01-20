@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
             this.phoneNumber=phoneNumber;
             this.lon=lon;
             this.lat=lat;
-            this.nearest= nearest+"miles";
+            this.nearest= nearest;
         }
         public String getProvider_name() {
             return provider_name;
@@ -221,7 +221,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-                                    chosenClinic = nearByClinics[Integer.parseInt(chatMessage.getMessage())];
+                                    chosenClinic = nearByClinics[Integer.parseInt(chatMessage.getMessage())-1];
                                     double currentla = currentLoc.getLatitude();
                                     double currentlon = currentLoc.getLongitude();
                                     double destla = Double.valueOf(chosenClinic.getLat());
@@ -310,10 +310,42 @@ public class MainActivity extends AppCompatActivity {
                         thisglobalvabb = msg;
                         if(msg.equals("You do not have a pre-set clinic, we will suggest clinics near you based on your GPS location.")){
                             if(chosenClinic != null){
-                                thisglobalvabb = "Here is the information of your pre-set clinic: ";
+                                if(currentLoc == null){
+                                    getLocation();
+                                }
+                                double currentla = currentLoc.getLatitude();
+                                double currentlon = currentLoc.getLongitude();
+                                double destla = Double.valueOf(chosenClinic.getLat());
+                                double destlon = Double.valueOf(chosenClinic.getLon());
+                                String ChosenName = chosenClinic.getProvider_name();
+                                String chosenAdd= chosenClinic.getAddress();
+                                String chosenNum = chosenClinic.getPhoneNumber();
+                                new AlertDialog.Builder(mChatView.getContext())
+                                        .setMessage("You chose "+ChosenName+"." + "Located at:" +chosenAdd+",")
+                                        .setPositiveButton("Direction", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                final Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://maps.google.com/maps?" + "saddr=" + currentla + "," +currentlon  + "&daddr=" + destla + "," + destlon));
+                                                intent.setClassName("com.google.android.apps.maps", "com.google.android.maps.MapsActivity");
+                                                startActivity(intent);
+                                            }
+                                        })
+                                        .setNegativeButton("Call", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                String phone = chosenNum;
+                                                Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", phone, null));
+                                                startActivity(intent);
+                                            }
+                                        })
+                                        .show();
+
+
                             }
                             else
                             getLocation();
+                            chatbot.send(currentLoc.getLongitude() + "|" +currentLoc.getLatitude());
+
                         }
                         else if(msg.indexOf('|')>=0){
                             //Kye, Kevin|BCC|Software Engineer|591 N Shaw Ln|East Lansing|Ingham County|MI|48825|(616) 308 6951|-84.47529109999999|42.7267794
@@ -402,7 +434,6 @@ public class MainActivity extends AppCompatActivity {
         else{
             //ask for permission
             Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER); //location data that can be used to calculate distance
-            chatbot.send(location.getLongitude() + "|" + location.getLatitude());
             currentLoc = location;
         }
 
@@ -414,6 +445,7 @@ public class MainActivity extends AppCompatActivity {
         switch (requestCode){
             case r_location:
                 getLocation();
+                chatbot.send(currentLoc.getLongitude() + "|" +currentLoc.getLatitude());
                 break;
 
         }
@@ -445,7 +477,7 @@ public class MainActivity extends AppCompatActivity {
                         if( isInteger(TextRecorded) ){
                             if(Integer.parseInt(TextRecorded)>=1 && (Integer.parseInt(TextRecorded)<=3)){
                                 waitingForChoice = false;
-                                chosenClinic = nearByClinics[Integer.parseInt(TextRecorded)];
+                                chosenClinic = nearByClinics[Integer.parseInt(TextRecorded)-1];
                                 double currentla = currentLoc.getLatitude();
                                 double currentlon = currentLoc.getLongitude();
                                 double destla = Double.valueOf(chosenClinic.getLat());
