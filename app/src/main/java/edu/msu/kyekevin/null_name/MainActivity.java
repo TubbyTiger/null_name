@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int Record_Limit = 100;
     private TextView mVoiceRecorded; // what system recorded
-    final DirectLineChatbot chatbot = new DirectLineChatbot("FuzJTZSqblE.cwA.D-E.aUCCKhA6bIREW1JtzhsG2AgYQvdsckg0hgJlFp4UkXU");
+    final DirectLineChatbot chatbot = new DirectLineChatbot("TbclawlN7Lk.cwA.Zvo.7LygN-lSxpQeiLhZNldc2nt8_TJ5Eq4g2k5t7ykh_Gg");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
