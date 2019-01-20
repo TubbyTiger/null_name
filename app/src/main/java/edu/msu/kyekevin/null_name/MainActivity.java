@@ -313,6 +313,7 @@ public class MainActivity extends AppCompatActivity {
                                 if(currentLoc == null){
                                     getLocation();
                                 }
+                                thisglobalvabb = "";
                                 double currentla = currentLoc.getLatitude();
                                 double currentlon = currentLoc.getLongitude();
                                 double destla = Double.valueOf(chosenClinic.getLat());
@@ -321,7 +322,7 @@ public class MainActivity extends AppCompatActivity {
                                 String chosenAdd= chosenClinic.getAddress();
                                 String chosenNum = chosenClinic.getPhoneNumber();
                                 new AlertDialog.Builder(mChatView.getContext())
-                                        .setMessage("You chose "+ChosenName+"." + "Located at:" +chosenAdd+",")
+                                        .setMessage("You pre-set clinic is "+ChosenName+"." + "Located at:" +chosenAdd+",")
                                         .setPositiveButton("Direction", new DialogInterface.OnClickListener() {
                                             @Override
                                             public void onClick(DialogInterface dialog, int which) {
@@ -339,7 +340,7 @@ public class MainActivity extends AppCompatActivity {
                                             }
                                         })
                                         .show();
-
+                                return;
 
                             }
                             else
