@@ -26,6 +26,8 @@ import java.io.BufferedReader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.concurrent.Semaphore;
+
 import android.support.annotation.NonNull;
 import android.speech.tts.TextToSpeech;
 import com.smartnsoft.directlinechatbot.DirectLineChatbot;
@@ -225,6 +227,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("CHATBOT", message);
                 //mChatView.addMessage(new ChatMessage(message, System.currentTimeMillis(), ChatMessage.Type.RECEIVED));
                 String msg = message;
+                final Semaphore mutex = new Semaphore(0);
 
                 runOnUiThread(new Runnable() {
                     @Override
@@ -250,7 +253,7 @@ public class MainActivity extends AppCompatActivity {
                                     double dist = Math.round(Float.parseFloat(values[11]) * 100.0)/100.0;
                                     Log.i("zzzz",values[0]);
                                     Log.i("zzzz",Double.toString(dist));
-                                    a += Integer.toString(choice)+". Name: " + values[0] + "\nDistance: "+Double.toString(dist)+"miles\n\n";
+                                    a += Integer.toString(choice)+".  Name: " + values[0] + "\nDistance: "+Double.toString(dist)+"miles\n\n";
                                 }
                             }
 
@@ -265,13 +268,16 @@ public class MainActivity extends AppCompatActivity {
                             ChatMessage chatMessage = new ChatMessage(a, System.currentTimeMillis(), ChatMessage.Type.RECEIVED);
                             mChatView.addMessage(chatMessage);
                         }
-
-
-
-
+                        mutex.release();
                     }
 
                 });
+
+                try {
+                    mutex.acquire();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 Thread t = new Thread(new Runnable() {
                     @Override
                     public void run() {
@@ -284,7 +290,7 @@ public class MainActivity extends AppCompatActivity {
                 });
                 t.start();
                 try {
-                    t.join(30000);
+                    t.join(300000);
                     thisglobalvabb = "";
                 } catch (InterruptedException e) {
                     e.printStackTrace();
