@@ -6,7 +6,6 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -23,7 +22,6 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
-
 import java.io.BufferedReader;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -172,6 +170,9 @@ public class MainActivity extends AppCompatActivity {
                         if(Integer.parseInt(chatMessage.getMessage())>=1 && (Integer.parseInt(chatMessage.getMessage())<=3)){
                             waitingForChoice = false;
                             chosenClinic = nearByClinics[Integer.parseInt(chatMessage.getMessage())];
+
+
+
                         }
                     }
 
@@ -208,6 +209,8 @@ public class MainActivity extends AppCompatActivity {
 
         chatbot.start(new DirectLineChatbot.Callback()
         {
+
+
             @Override
             public void onStarted()
             {
@@ -226,16 +229,68 @@ public class MainActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        ChatMessage chatMessage = new ChatMessage(msg, System.currentTimeMillis(), ChatMessage.Type.RECEIVED);
-                        mChatView.addMessage(chatMessage);
-                        t1.speak(msg,TextToSpeech.QUEUE_FLUSH,null,null);
+                        String a = msg;
+                        thisglobalvabb = msg;
+                        if(msg.equals("You do not have a pre-set clinic, we will suggest clinics near you based on your GPS location.")){
+                            getLocation();
+                        }
+                        else if(msg.indexOf('|')>=0){
+                            //Kye, Kevin|BCC|Software Engineer|591 N Shaw Ln|East Lansing|Ingham County|MI|48825|(616) 308 6951|-84.47529109999999|42.7267794
+                            a = "";
+                            String line = null;
+                            BufferedReader bufReader = new BufferedReader(new StringReader(msg));
+                            try {
+                                int cnt = 0;
+                                int choice = 0;
+                                while ((line = bufReader.readLine()) != null) {
+                                    String[] values = line.split("\\|");
+                                    nearByClinics[cnt] =new Clinic(values[0],values[1],values[2],values[3],values[4],values[5],values[6],values[7],values[8],values[9],values[10],values[11]);
+                                    cnt++;
+                                    choice ++;
+                                    double dist = Math.round(Float.parseFloat(values[11]) * 100.0)/100.0;
+                                    Log.i("zzzz",values[0]);
+                                    Log.i("zzzz",Double.toString(dist));
+                                    a += Integer.toString(choice)+". Name: " + values[0] + "\nDistance: "+Double.toString(dist)+"miles\n\n";
+                                }
+                            }
+
+                            catch (java.io.IOException e){
+                                Log.e("NEARBY EXCEPTION","COULDNT FIND NEARBY 3 "+e.getMessage());
+                            }
+                            a += "Choose a clinic by number.";
+                            thisglobalvabb = a;
+                            waitingForChoice = true;
+                        }
+                        if(!msg.isEmpty()) {
+                            ChatMessage chatMessage = new ChatMessage(a, System.currentTimeMillis(), ChatMessage.Type.RECEIVED);
+                            mChatView.addMessage(chatMessage);
+                        }
+
+
+
+
+                    }
+
+                });
+                Thread t = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        t1.speak(thisglobalvabb,TextToSpeech.QUEUE_FLUSH,null,null);
                         boolean speakingEnd = t1.isSpeaking();
                         do{
                             speakingEnd = t1.isSpeaking();
                         } while (speakingEnd);
-
                     }
                 });
+                t.start();
+                try {
+                    t.join(30000);
+                    thisglobalvabb = "";
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+
 
             }
 
@@ -310,6 +365,7 @@ public class MainActivity extends AppCompatActivity {
 
         }
     }
+
 
 
 }
