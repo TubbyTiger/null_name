@@ -20,6 +20,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.speech.RecognizerIntent;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Html;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -146,6 +147,10 @@ public class MainActivity extends AppCompatActivity {
         public String getPhoneNumber() {
             return phoneNumber;
         }
+
+        public String getNearest() {
+            return nearest;
+        }
     }
     public static boolean isInteger(String s) {
         boolean isValidInteger = false;
@@ -229,8 +234,15 @@ public class MainActivity extends AppCompatActivity {
                                     String ChosenName = chosenClinic.getProvider_name();
                                     String chosenAdd= chosenClinic.getAddress();
                                     String chosenNum = chosenClinic.getPhoneNumber();
+                                    String net = chosenClinic.getNetwork_identifier();
+                                    String city= chosenClinic.getCity();
+                                    String county =chosenClinic.getCounty();
+                                    String state = chosenClinic.getState();
+                                    String dis = chosenClinic.getNearest();
                                     new AlertDialog.Builder(mChatView.getContext())
-                                            .setMessage("You chose "+ChosenName+"." + "Located at:" +chosenAdd+",")
+                                            .setTitle(ChosenName)
+                                            .setMessage("\n"+"Located at: " +chosenAdd+"\n\n"+"Phone: "+chosenNum+"\n\n"
+                                                    +"Network identifier: "+net+"\n\n"+"City: "+city+"\n\n"+"County: "+county+"\n\n"+"State: "+state+"\n\n"+"Distance: "+dis+" miles"+"\n\n")
                                             .setPositiveButton("Direction", new DialogInterface.OnClickListener() {
                                                 @Override
                                                 public void onClick(DialogInterface dialog, int which) {
@@ -321,8 +333,15 @@ public class MainActivity extends AppCompatActivity {
                                 String ChosenName = chosenClinic.getProvider_name();
                                 String chosenAdd= chosenClinic.getAddress();
                                 String chosenNum = chosenClinic.getPhoneNumber();
+                                String net = chosenClinic.getNetwork_identifier();
+                                String city= chosenClinic.getCity();
+                                String county =chosenClinic.getCounty();
+                                String state = chosenClinic.getState();
+                                String dis = chosenClinic.getNearest();
                                 new AlertDialog.Builder(mChatView.getContext())
-                                        .setMessage("You pre-set clinic is "+ChosenName+"." + "Located at:" +chosenAdd+",")
+                                        .setTitle(ChosenName)
+                                        .setMessage("\n"+"Located at: " +chosenAdd+"\n\n"+"Phone: "+chosenNum+"\n\n"
+                                                +"Network identifier: "+net+"\n\n"+"City: "+city+"\n\n"+"County: "+county+"\n\n"+"State: "+state+"\n\n"+"Distance: "+dis+" miles"+"\n\n")
                                         .setPositiveButton("Direction", new DialogInterface.OnClickListener() {
                                             @Override
                                             public void onClick(DialogInterface dialog, int which) {
@@ -486,8 +505,15 @@ public class MainActivity extends AppCompatActivity {
                                 String ChosenName = chosenClinic.getProvider_name();
                                 String chosenAdd= chosenClinic.getAddress();
                                 String chosenNum = chosenClinic.getPhoneNumber();
+                                String net = chosenClinic.getNetwork_identifier();
+                                String city= chosenClinic.getCity();
+                                String county =chosenClinic.getCounty();
+                                String state = chosenClinic.getState();
+                                String dis = chosenClinic.getNearest();
                                 new AlertDialog.Builder(mChatView.getContext())
-                                        .setMessage("You chose "+ChosenName+"." + "Located at:" +chosenAdd+",")
+                                        .setTitle(ChosenName)
+                                        .setMessage("\n"+"Located at: " +chosenAdd+"\n\n"+"Phone: "+chosenNum+"\n\n"
+                                                +"Network identifier: "+net+"\n\n"+"City: "+city+"\n\n"+"County: "+county+"\n\n"+"State: "+state+"\n\n"+"Distance: "+dis+" miles"+"\n\n")
                                         .setPositiveButton("Direction", new DialogInterface.OnClickListener() {
                                             @Override
                                             public void onClick(DialogInterface dialog, int which) {
