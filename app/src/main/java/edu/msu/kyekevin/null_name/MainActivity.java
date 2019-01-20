@@ -117,15 +117,15 @@ public class MainActivity extends AppCompatActivity {
                     public void run() {
                         ChatMessage chatMessage = new ChatMessage(msg, System.currentTimeMillis(), ChatMessage.Type.RECEIVED);
                         mChatView.addMessage(chatMessage);
-                        t1.speak(msg,TextToSpeech.QUEUE_FLUSH,null,null);
-                        boolean speakingEnd = t1.isSpeaking();
-                        do{
-                            speakingEnd = t1.isSpeaking();
-                        } while (speakingEnd);
+
 
                     }
                 });
-
+                t1.speak(msg,TextToSpeech.QUEUE_FLUSH,null,null);
+                boolean speakingEnd = t1.isSpeaking();
+                do{
+                    speakingEnd = t1.isSpeaking();
+                } while (speakingEnd);
             }
 
         });
