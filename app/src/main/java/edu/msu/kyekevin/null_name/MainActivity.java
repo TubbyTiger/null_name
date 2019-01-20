@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
     TextToSpeech t1;
     final DirectLineChatbot chatbot = new DirectLineChatbot("TbclawlN7Lk.cwA.Zvo.7LygN-lSxpQeiLhZNldc2nt8_TJ5Eq4g2k5t7ykh_Gg");
     private boolean waitingForChoice = false;
+    public String thisglobalvabb = "";
 
     public class Clinic {
         private String provider_name;
@@ -206,9 +207,12 @@ public class MainActivity extends AppCompatActivity {
 
         chatbot.start(new DirectLineChatbot.Callback()
         {
+
+
             @Override
             public void onStarted()
             {
+                chatbot.send("welcome");
                 Log.d("CHATBOT", "Started");
 
             }
@@ -218,12 +222,13 @@ public class MainActivity extends AppCompatActivity {
             {
                 Log.d("CHATBOT", message);
                 //mChatView.addMessage(new ChatMessage(message, System.currentTimeMillis(), ChatMessage.Type.RECEIVED));
-                final String msg = message;
+                String msg = message;
 
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         String a = msg;
+                        thisglobalvabb = msg;
                         if(msg.equals("You do not have a pre-set clinic, we will suggest clinics near you based on your GPS location.")){
                             getLocation();
                         }
@@ -240,7 +245,7 @@ public class MainActivity extends AppCompatActivity {
                                     nearByClinics[cnt] =new Clinic(values[0],values[1],values[2],values[3],values[4],values[5],values[6],values[7],values[8],values[9],values[10],values[11]);
                                     cnt++;
                                     choice ++;
-                                    a += Integer.toString(choice)+". Name:" + values[0] + "\nDistance: "+values[11]+"miles\n\n";
+                                    a += Integer.toString(choice)+". Name:" + values[0] + "\nDistance: "+values[11]+" miles\n\n";
                                 }
                             }
 
@@ -248,19 +253,38 @@ public class MainActivity extends AppCompatActivity {
                                 Log.e("NEARBY EXCEPTION","COULDNT FIND NEARBY 3 "+e.getMessage());
                             }
                             a += "Choose a clinic by number.";
+                            thisglobalvabb = a;
                             waitingForChoice = true;
                         }
                         if(!msg.isEmpty()) {
                             ChatMessage chatMessage = new ChatMessage(a, System.currentTimeMillis(), ChatMessage.Type.RECEIVED);
                             mChatView.addMessage(chatMessage);
-                            t1.speak(a,TextToSpeech.QUEUE_FLUSH,null,null);
-                            boolean speakingEnd = t1.isSpeaking();
-                            do{
-                                speakingEnd = t1.isSpeaking();
-                            } while (speakingEnd);
                         }
+
+
+
+
+                    }
+
+                });
+                Thread t = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        t1.speak(thisglobalvabb,TextToSpeech.QUEUE_FLUSH,null,null);
+                        boolean speakingEnd = t1.isSpeaking();
+                        do{
+                            speakingEnd = t1.isSpeaking();
+                        } while (speakingEnd);
                     }
                 });
+                t.start();
+                try {
+                    t.join(20000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+
 
             }
 
@@ -287,6 +311,8 @@ public class MainActivity extends AppCompatActivity {
         else{
             //ask for permission
             Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER); //location data that can be used to calculate distance
+            chatbot.send(location.getLongitude() + "|" + location.getLatitude());
+
         }
 
 
